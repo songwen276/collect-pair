@@ -1,7 +1,6 @@
 package graph
 
 import (
-	"collectv2v3uniswap/src/config"
 	"context"
 	"fmt"
 	"github.com/machinebox/graphql"
@@ -20,10 +19,11 @@ type poolCreatedsResponse struct {
 	PoolCreateds []PoolCreated `json:"poolCreateds"`
 }
 
-// 初始化 GraphQL 客户端
-var client = graphql.NewClient(config.ConfigCache.Graph.Url)
+type GraphClient struct {
+	*graphql.Client
+}
 
-func QueryLastBlockNumber() string {
+func (client GraphClient) QueryLastBlockNumber() string {
 	// 构建 GraphQL 查询
 	ctx := context.Background()
 	query := `
@@ -44,7 +44,7 @@ func QueryLastBlockNumber() string {
 	return resp.PoolCreateds[0].BlockNumber
 }
 
-func QueryPoolCreatedsByPage(pageSize int, startBlockNumber string) []PoolCreated {
+func (client GraphClient) QueryPoolCreatedsByPage(pageSize int, startBlockNumber string) []PoolCreated {
 	// 初始化分页查询
 	ctx := context.Background()
 	poolCreateds := make([]PoolCreated, 0)
