@@ -7,12 +7,13 @@ import (
 )
 
 type PoolCreated struct {
-	BlockNumber string `json:"blockNumber"`
-	Token0      string `json:"token0"`
-	Token1      string `json:"token1"`
-	Fee         int    `json:"fee"`
-	TickSpacing int    `json:"tickSpacing"`
-	Pool        string `json:"pool"`
+	BlockNumber    string `json:"blockNumber"`
+	Token0         string `json:"token0"`
+	Token1         string `json:"token1"`
+	Fee            int32  `json:"fee"`
+	TickSpacing    int32  `json:"tickSpacing"`
+	Pool           string `json:"pool"`
+	BlockTimestamp string `json:"blockTimestamp"`
 }
 
 type poolCreatedsResponse struct {
@@ -38,7 +39,7 @@ func (client GraphClient) QueryLastBlockNumber() string {
 	// 执行查询
 	var resp = poolCreatedsResponse{}
 	if err := client.Run(ctx, req, &resp); err != nil {
-		fmt.Printf("查询失败最新区块号失败: %v", err)
+		fmt.Printf("查询失败最新区块号失败: %v\n", err)
 	}
 
 	return resp.PoolCreateds[0].BlockNumber
@@ -48,37 +49,44 @@ func (client GraphClient) QueryPoolCreatedsByPage(pageSize int, startBlockNumber
 	// 初始化分页查询
 	ctx := context.Background()
 	poolCreateds := make([]PoolCreated, 0)
+	skip := 0
 	query := `
-			query ($first: Int, $blockNumber: String) {
-				poolCreateds(first: $first, where: { blockNumber_gt: $blockNumber }, orderBy: blockNumber, orderDirection: asc) {
-					blockNumber
-					token0
-					token1
-					fee
-					tickSpacing
-					pool
-				}
+			query ($startBlockNumber: String!, $first: Int!, $skip: Int!) {
+			poolCreateds(
+				where: { blockNumber_gt: $startBlockNumber }
+				first: $first
+				skip: $skip
+				orderBy: blockNumber
+				orderDirection: asc
+			) {
+				blockNumber
+				token0
+				token1
+				fee
+				tickSpacing
+				pool
+				blockTimestamp
 			}
+		}
 		`
 
 	// 循环分页查询
 	for {
 		// 创建 GraphQL 请求
 		req := graphql.NewRequest(query)
+		req.Var("startBlockNumber", startBlockNumber)
 		req.Var("first", pageSize)
-		req.Var("blockNumber", startBlockNumber)
+		req.Var("skip", skip)
 
 		// 执行查询
 		var resp = poolCreatedsResponse{}
 		if err := client.Run(ctx, req, &resp); err != nil {
-			fmt.Printf("分页查询失败: %v", err)
+			fmt.Printf("分页查询失败: %v\n", err)
 		}
 
 		// 无结果，退出循环，存在则将结果填充到 `poolCreateds`中
 		if len(resp.PoolCreateds) == 0 {
 			break
-		} else {
-			poolCreateds = append(poolCreateds, resp.PoolCreateds...)
 		}
 
 		// 输出当前页数据
@@ -87,8 +95,9 @@ func (client GraphClient) QueryPoolCreatedsByPage(pageSize int, startBlockNumber
 		// 		poolCreated.BlockNumber, poolCreated.Token0, poolCreated.Token1, poolCreated.Fee, poolCreated.TickSpacing, poolCreated.Pool)
 		// }
 
-		// 更新下一个分页的起点为当前页最后一条记录的 `blockNumber`
-		startBlockNumber = resp.PoolCreateds[len(resp.PoolCreateds)-1].BlockNumber
+		// 更新下一个分页的起点
+		poolCreateds = append(poolCreateds, resp.PoolCreateds...)
+		skip += pageSize
 	}
 
 	return poolCreateds

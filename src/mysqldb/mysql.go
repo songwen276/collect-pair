@@ -25,7 +25,7 @@ func init() {
 		var err error
 		mysqldb, err = sqlx.Open("mysql", dsn)
 		if err != nil {
-			fmt.Printf("Error opening database", err)
+			fmt.Printf("Error opening database\n", err)
 		}
 
 		// 配置连接池
@@ -35,7 +35,7 @@ func init() {
 
 		// 验证连接
 		if err = mysqldb.Ping(); err != nil {
-			fmt.Printf("Error pinging database", err)
+			fmt.Printf("Error pinging database\n", err)
 		}
 	})
 }
@@ -43,7 +43,7 @@ func init() {
 // GetDB 返回数据库连接池对象
 func GetMysqlDB() *sqlx.DB {
 	if mysqldb == nil {
-		fmt.Printf("Database not initialized. Call InitDB first.")
+		fmt.Printf("Database not initialized. Call InitDB first\n")
 	}
 	return mysqldb
 }

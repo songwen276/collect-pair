@@ -42,17 +42,17 @@ func InsertArbitragePairsBatch(arbitragePairs []ArbitragePair) error {
 
 	// 遍历数据进行插入
 	for _, pair := range arbitragePairs {
-		_, err := tx.NamedExec(insert, pair)
+		_, err = tx.NamedExec(insert, pair)
 		if err != nil {
 			tx.Rollback() // 回滚事务
-			return fmt.Errorf("failed to insert data: %v", err)
+			return fmt.Errorf("failed to insert data: %v\n", err)
 		}
 	}
 
 	// 提交事务
-	if err := tx.Commit(); err != nil {
+	if err = tx.Commit(); err != nil {
 		tx.Rollback() // 回滚事务
-		return fmt.Errorf("failed to commit transaction: %v", err)
+		return fmt.Errorf("failed to commit transaction: %v\n", err)
 	}
 
 	return nil
@@ -66,7 +66,7 @@ func GetMaxPairIndexByRouter(router string) (uint64, error) {
 
 	err := db.Get(&maxPairIndex, query, router)
 	if err != nil {
-		return 0, fmt.Errorf("failed to query max pair_index for router %s: %v", router, err)
+		return 0, fmt.Errorf("failed to query max pair_index for router %s: %v\n", router, err)
 	}
 
 	// 如果查询结果为 NULL，返回 0

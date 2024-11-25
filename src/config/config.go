@@ -30,7 +30,6 @@ type Config struct {
 	} `yaml:"mysql"`
 
 	Local struct {
-		Number        string `yaml:"number"`
 		ConfigItemUrl string `yaml:"configItemUrl"`
 	} `yaml:"local"`
 
@@ -50,7 +49,7 @@ func LoadConfig(file string) (*Config, error) {
 
 	// 使用 YAML 解码
 	decoder := yaml.NewDecoder(f)
-	if err := decoder.Decode(&cfg); err != nil {
+	if err = decoder.Decode(&cfg); err != nil {
 		return nil, err
 	}
 
