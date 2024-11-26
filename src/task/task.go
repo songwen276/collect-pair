@@ -101,6 +101,16 @@ loop:
 				uniqueNumbers := make(map[string]bool)
 				filteredBlockNumbers := make([]string, 0)
 				for _, poolCreated := range poolCreateds {
+					// 判断该pair是否已存在，存在则跳过
+					count, countErr := pair.CountPair(taskInfo.ContractAddress, poolCreated.Pool, poolCreated.Token0, poolCreated.Token1)
+					if countErr != nil {
+						break loop
+					}
+
+					if count > 0 {
+						continue
+					}
+
 					// 构造pair对象
 					maxPairIndex++
 					arbitragePair := pair.ArbitragePair{
@@ -127,7 +137,7 @@ loop:
 					groupedMap[poolCreated.BlockNumber] = append(groupedMap[poolCreated.BlockNumber], arbitragePair)
 				}
 
-				fmt.Printf("[%s]分组处理成功，filteredBlockNumbers: %v，groupedMap: %v\n", taskInfo.Name, filteredBlockNumbers, groupedMap)
+				fmt.Printf("[%s]分组处理成功，filteredBlockNumbers: %v，groupedMap: %v\n", taskInfo.Name, len(filteredBlockNumbers), len(groupedMap))
 
 				// 分组插入数据库
 				for _, blockNumber := range filteredBlockNumbers {

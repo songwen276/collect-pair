@@ -76,3 +76,17 @@ func GetMaxPairIndexByRouter(router string) (uint64, error) {
 
 	return uint64(maxPairIndex.Int64), nil
 }
+
+func CountPair(router string, pairAddress string, token0 string, token1 string) (uint64, error) {
+	db := mysqldb.GetMysqlDB()
+
+	var count uint64
+	query := `SELECT COUNT(1) FROM arbitrage_pair_test WHERE router = ? AND pair_address = ? AND token0 = ? AND token1 = ?`
+
+	err := db.Get(&count, query, router, pairAddress, token0, token1)
+	if err != nil {
+		return 0, fmt.Errorf("failed to query is pair exists %s, %s, %s, %s: %v\n", router, pairAddress, token0, token1, err)
+	}
+
+	return count, nil
+}
