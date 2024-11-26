@@ -1,7 +1,7 @@
 package task
 
 import (
-	"collectv2v3uniswap/src/config"
+	"collect-pair/src/config"
 	"encoding/json"
 	"fmt"
 	"io"

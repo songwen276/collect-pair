@@ -1,9 +1,9 @@
 package task
 
 import (
-	"collectv2v3uniswap/src/config"
-	"collectv2v3uniswap/src/graph"
-	"collectv2v3uniswap/src/pair"
+	"collect-pair/src/config"
+	"collect-pair/src/graph"
+	"collect-pair/src/pair"
 	"fmt"
 	"github.com/machinebox/graphql"
 	"gopkg.in/yaml.v3"

@@ -7,13 +7,14 @@ import (
 )
 
 type PoolCreated struct {
-	BlockNumber    string `json:"blockNumber"`
-	Token0         string `json:"token0"`
-	Token1         string `json:"token1"`
-	Fee            int32  `json:"fee"`
-	TickSpacing    int32  `json:"tickSpacing"`
-	Pool           string `json:"pool"`
-	BlockTimestamp string `json:"blockTimestamp"`
+	BlockNumber     string `json:"blockNumber"`
+	Token0          string `json:"token0"`
+	Token1          string `json:"token1"`
+	Fee             int32  `json:"fee"`
+	TickSpacing     int32  `json:"tickSpacing"`
+	Pool            string `json:"pool"`
+	BlockTimestamp  string `json:"blockTimestamp"`
+	TransactionHash string `json:"transactionHash"`
 }
 
 type poolCreatedsResponse struct {

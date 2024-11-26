@@ -1,4 +1,4 @@
-module collectv2v3uniswap
+module collect-pair
 
 go 1.22
 

@@ -1,7 +1,7 @@
 package mysqldb
 
 import (
-	"collectv2v3uniswap/src/config"
+	"collect-pair/src/config"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"

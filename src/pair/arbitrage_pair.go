@@ -1,7 +1,7 @@
 package pair
 
 import (
-	"collectv2v3uniswap/src/mysqldb"
+	"collect-pair/src/mysqldb"
 	"database/sql"
 	"fmt"
 	"time"

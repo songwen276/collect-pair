@@ -1,7 +1,7 @@
 package main
 
 import (
-	"collectv2v3uniswap/src/task"
+	"collect-pair/src/task"
 )
 
 func main() {
