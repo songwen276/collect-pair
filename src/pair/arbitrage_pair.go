@@ -34,7 +34,7 @@ func InsertArbitragePairsBatch(arbitragePairs []ArbitragePair) error {
 
 	// 定义插入 SQL
 	insert := `
-        INSERT INTO arbitrage_pair_test (
+        INSERT INTO arbitrage_pair (
             router, pair_index, pair_address, token0, token1, amount0, amount1, has_flash_loan, closed, gmt_create, gmt_modified
         ) VALUES (
             :router, :pair_index, :pair_address, :token0, :token1, :amount0, :amount1, :has_flash_loan, :closed, :gmt_create, :gmt_modified
@@ -62,7 +62,7 @@ func GetMaxPairIndexByRouter(router string) (uint64, error) {
 	db := mysqldb.GetMysqlDB()
 
 	var maxPairIndex sql.NullInt64
-	query := `SELECT MAX(pair_index) AS max_pair_index FROM arbitrage_pair_test WHERE router = ?`
+	query := `SELECT MAX(pair_index) AS max_pair_index FROM arbitrage_pair WHERE router = ?`
 
 	err := db.Get(&maxPairIndex, query, router)
 	if err != nil {
@@ -81,7 +81,7 @@ func CountPair(router string, pairAddress string, token0 string, token1 string) 
 	db := mysqldb.GetMysqlDB()
 
 	var count uint64
-	query := `SELECT COUNT(1) FROM arbitrage_pair_test WHERE router = ? AND pair_address = ? AND token0 = ? AND token1 = ?`
+	query := `SELECT COUNT(1) FROM arbitrage_pair WHERE router = ? AND pair_address = ? AND token0 = ? AND token1 = ?`
 
 	err := db.Get(&count, query, router, pairAddress, token0, token1)
 	if err != nil {
