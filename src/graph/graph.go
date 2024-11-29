@@ -40,7 +40,7 @@ func (client GraphClient) QueryLastBlockNumber() string {
 	// 执行查询
 	var resp = poolCreatedsResponse{}
 	if err := client.Run(ctx, req, &resp); err != nil {
-		fmt.Printf("查询失败最新区块号失败: %v\n", err)
+		return ""
 	}
 
 	return resp.PoolCreateds[0].BlockNumber
