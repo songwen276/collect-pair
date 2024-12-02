@@ -1,7 +1,6 @@
 package task
 
 import (
-	"collect-pair/src/config"
 	"collect-pair/src/graph"
 	"collect-pair/src/pair"
 	"fmt"
@@ -60,13 +59,8 @@ loop:
 
 		select {
 		case <-ticker.C:
-			// 根据任务id获取本地已处理区块记录文件路径
-			filePath, exist := config.ConfigCache.FilePaths[taskInfo.ID]
-			if !exist {
-				fmt.Printf("[%s]未找到本地已处理区块记录文件路径\n", taskInfo.Name)
-				continue
-			}
-
+			// 根据任务名称加载本地已处理区块记录文件
+			filePath := taskInfo.Name + ".yaml"
 			records, err := loadTaskRecords(filePath)
 			if err != nil {
 				fmt.Printf("[%s]加载本地已处理区块记录文件失败，err: %v\n", taskInfo.Name, err)
@@ -128,7 +122,7 @@ loop:
 					}
 
 					// 为了保证后续处理顺序，将 BlockNumber 去重存入切片
-					if _, exist = uniqueNumbers[poolCreated.BlockNumber]; !exist {
+					if _, exist := uniqueNumbers[poolCreated.BlockNumber]; !exist {
 						filteredBlockNumbers = append(filteredBlockNumbers, poolCreated.BlockNumber)
 						uniqueNumbers[poolCreated.BlockNumber] = true
 					}

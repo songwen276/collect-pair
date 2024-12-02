@@ -32,8 +32,6 @@ type Config struct {
 	Local struct {
 		ConfigItemUrl string `yaml:"configItemUrl"`
 	} `yaml:"local"`
-
-	FilePaths map[string]string `yaml:"filePaths"`
 }
 
 func LoadConfig(file string) (*Config, error) {
