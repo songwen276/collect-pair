@@ -40,7 +40,11 @@ func (client GraphClient) QueryLastBlockNumber() string {
 	// 执行查询
 	var resp = poolCreatedsResponse{}
 	if err := client.Run(ctx, req, &resp); err != nil {
-		return ""
+		return "0"
+	}
+
+	if len(resp.PoolCreateds) == 0 {
+		return "0"
 	}
 
 	return resp.PoolCreateds[0].BlockNumber

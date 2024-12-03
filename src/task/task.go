@@ -72,6 +72,9 @@ loop:
 			if lastBlockNumber == records.LocalBlockNumber {
 				fmt.Printf("[%s]lastBlockNumber = localBlockNumber = %s , 无新增区块数据事件，跳过处理\n", taskInfo.Name, lastBlockNumber)
 				continue
+			} else if lastBlockNumber < records.LocalBlockNumber {
+				fmt.Printf("[%s]lastBlockNumber < localBlockNumber = %s , 本地区块数据异常或者无记录，退出\n", taskInfo.Name, lastBlockNumber)
+				continue
 			} else {
 				fmt.Printf("[%s]存在新增区块数据事件，开始处理，区块范围: (%s - %s]\n", taskInfo.Name, records.LocalBlockNumber, lastBlockNumber)
 			}
@@ -134,12 +137,13 @@ loop:
 				fmt.Printf("[%s]分组处理成功，filteredBlockNumbers: %v，groupedMap: %v\n", taskInfo.Name, len(filteredBlockNumbers), len(groupedMap))
 
 				// 分组插入数据库
+			loopIntert:
 				for _, blockNumber := range filteredBlockNumbers {
 					pairs := groupedMap[blockNumber]
 					err = pair.InsertArbitragePairsBatch(pairs)
 					if err != nil {
 						fmt.Printf("[%s]插入当前区块pair数据到数据库失败，err: %v\n", taskInfo.Name, err)
-						break loop
+						break loopIntert
 					}
 
 					// 新增的区块的所有事件数据插入数据库成功后，更新本地区块号
