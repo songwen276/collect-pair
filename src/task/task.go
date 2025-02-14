@@ -2,8 +2,8 @@ package task
 
 import (
 	"collect-pair/src/graph"
+	mlog "collect-pair/src/log"
 	"collect-pair/src/pair"
-	"fmt"
 	"github.com/machinebox/graphql"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -47,7 +47,7 @@ loop:
 
 		// 判断任务开关关闭直接退出
 		if !taskInfo.On {
-			fmt.Printf("[%s]任务关闭，退出\n", taskInfo.Name)
+			mlog.Logger.Infof("[%s]任务关闭，退出", taskInfo.Name)
 			return
 		}
 
@@ -63,33 +63,33 @@ loop:
 			filePath := taskInfo.Name + ".yaml"
 			records, err := loadTaskRecords(filePath)
 			if err != nil {
-				fmt.Printf("[%s]加载本地已处理区块记录文件失败，err: %v\n", taskInfo.Name, err)
+				mlog.Logger.Errorf("[%s]加载本地已处理区块记录文件失败，err: %v", taskInfo.Name, err)
 				continue
 			}
 
 			// 查询最新区块号，判断最新区块号是否与本地区块一致，一致则跳过
 			lastBlockNumber := taskInfo.GraphClient.QueryLastBlockNumber()
 			if lastBlockNumber == records.LocalBlockNumber {
-				fmt.Printf("[%s]lastBlockNumber = localBlockNumber = %s , 无新增区块数据事件，跳过处理\n", taskInfo.Name, lastBlockNumber)
+				mlog.Logger.Infof("[%s]lastBlockNumber = localBlockNumber = %s , 无新增区块数据事件，跳过处理", taskInfo.Name, lastBlockNumber)
 				continue
 			} else if lastBlockNumber < records.LocalBlockNumber {
-				fmt.Printf("[%s]lastBlockNumber < localBlockNumber = %s , 本地区块数据异常或者无记录，退出\n", taskInfo.Name, lastBlockNumber)
+				mlog.Logger.Infof("[%s]lastBlockNumber < localBlockNumber = %s , 本地区块数据异常或者无记录，退出", taskInfo.Name, lastBlockNumber)
 				continue
 			} else {
-				fmt.Printf("[%s]存在新增区块数据事件，开始处理，区块范围: (%s - %s]\n", taskInfo.Name, records.LocalBlockNumber, lastBlockNumber)
+				mlog.Logger.Infof("[%s]存在新增区块数据事件，开始处理，区块范围: (%s - %s]", taskInfo.Name, records.LocalBlockNumber, lastBlockNumber)
 			}
 
 			// 查询新增的区块数据事件数据
 			startBlockNumber, _ := strconv.ParseUint(records.LocalBlockNumber, 10, 64)
 			poolCreateds := taskInfo.GraphClient.QueryPoolCreatedsByPage(taskInfo.PageSize, strconv.FormatUint(startBlockNumber, 10))
-			fmt.Printf("[%s]查询新增区块数据事件成功，lenth: %d, poolCreateds: %v\n", taskInfo.Name, len(poolCreateds), poolCreateds)
+			mlog.Logger.Infof("[%s]查询新增区块数据事件成功，lenth: %d, poolCreateds: %v", taskInfo.Name, len(poolCreateds), poolCreateds)
 
 			// 判断该区块存在事件数据，进行后续处理
 			if len(poolCreateds) > 0 {
 				// 查询数据库中已存在router的最大pair_index
 				maxPairIndex, err := pair.GetMaxPairIndexByRouter(taskInfo.ContractAddress)
 				if err != nil {
-					fmt.Printf("[%s]查询数据库失败，err: %v\n", taskInfo.Name, err)
+					mlog.Logger.Errorf("[%s]查询数据库失败，err: %v", taskInfo.Name, err)
 					break loop
 				}
 
@@ -134,7 +134,7 @@ loop:
 					groupedMap[poolCreated.BlockNumber] = append(groupedMap[poolCreated.BlockNumber], arbitragePair)
 				}
 
-				fmt.Printf("[%s]分组处理成功，filteredBlockNumbers: %v，groupedMap: %v\n", taskInfo.Name, len(filteredBlockNumbers), len(groupedMap))
+				mlog.Logger.Infof("[%s]分组处理成功，filteredBlockNumbers: %v，groupedMap: %v", taskInfo.Name, len(filteredBlockNumbers), len(groupedMap))
 
 				// 分组插入数据库
 			loopIntert:
@@ -142,14 +142,14 @@ loop:
 					pairs := groupedMap[blockNumber]
 					err = pair.InsertArbitragePairsBatch(pairs)
 					if err != nil {
-						fmt.Printf("[%s]插入当前区块pair数据到数据库失败，err: %v\n", taskInfo.Name, err)
+						mlog.Logger.Errorf("[%s]插入当前区块pair数据到数据库失败，err: %v", taskInfo.Name, err)
 						break loopIntert
 					}
 
 					// 新增的区块的所有事件数据插入数据库成功后，更新本地区块号
 					records.LocalBlockNumber = blockNumber
 					saveTaskRecords(filePath, records)
-					fmt.Printf("[%s]插入当前区块pair数据到数据库成功，blockNumber: %s\n", taskInfo.Name, blockNumber)
+					mlog.Logger.Infof("[%s]插入当前区块pair数据到数据库成功，blockNumber: %s", taskInfo.Name, blockNumber)
 				}
 			}
 		}

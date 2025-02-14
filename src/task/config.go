@@ -2,8 +2,8 @@ package task
 
 import (
 	"collect-pair/src/config"
+	mlog "collect-pair/src/log"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -30,7 +30,7 @@ func fetchDynamicConfig() {
 	// 发送GET请求，获取最新的配置信息
 	resp, err := http.Get(config.ConfigCache.Local.ConfigItemUrl)
 	if err != nil {
-		fmt.Printf("http请求配置url失败，err: %v\n", err)
+		mlog.Logger.Errorf("http请求配置url失败，err: %v", err)
 		return
 	}
 	defer resp.Body.Close() // 确保函数结束时关闭响应体
@@ -38,7 +38,7 @@ func fetchDynamicConfig() {
 	// 读取响应体
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("读取http请求响应配置数据失败，err: %v\n", err)
+		mlog.Logger.Errorf("读取http请求响应配置数据失败，err: %v", err)
 		return
 	}
 
@@ -46,7 +46,7 @@ func fetchDynamicConfig() {
 	list := &TaskList{}
 	err = json.Unmarshal(body, &list)
 	if err != nil {
-		fmt.Printf("解析配置数据失败，err: %v\n", err)
+		mlog.Logger.Errorf("解析配置数据失败，err: %v", err)
 		return
 	}
 
@@ -70,7 +70,7 @@ func fetchDynamicConfig() {
 		}
 
 		// 打印解析后的结果
-		fmt.Printf("解析配置数据成功，dynamicConfig: %v\n", *collectTask)
+		mlog.Logger.Infof("解析配置数据成功，dynamicConfig: %v", *collectTask)
 	}
 
 	// 通知各个任务重新加载配置

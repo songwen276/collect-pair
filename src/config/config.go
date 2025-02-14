@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	mlog "collect-pair/src/log"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -12,7 +12,7 @@ func init() {
 	// 加载配置文件
 	lodConfig, err := LoadConfig("config.yaml")
 	if err != nil {
-		fmt.Printf("加载配置文件异常: %v\n", err)
+		mlog.Logger.Errorf("加载配置文件异常: %v", err)
 		return
 	}
 	ConfigCache = lodConfig

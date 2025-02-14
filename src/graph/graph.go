@@ -1,8 +1,8 @@
 package graph
 
 import (
+	mlog "collect-pair/src/log"
 	"context"
-	"fmt"
 	"github.com/machinebox/graphql"
 )
 
@@ -86,7 +86,7 @@ func (client GraphClient) QueryPoolCreatedsByPage(pageSize int, startBlockNumber
 		// 执行查询
 		var resp = poolCreatedsResponse{}
 		if err := client.Run(ctx, req, &resp); err != nil {
-			fmt.Printf("分页查询失败: %v\n", err)
+			mlog.Logger.Errorf("分页查询失败: %v", err)
 		}
 
 		// 无结果，退出循环，存在则将结果填充到 `poolCreateds`中
